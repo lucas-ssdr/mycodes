@@ -1,0 +1,489 @@
+/**
+ * @file main.c
+ * @author Lucas Silva Dos Reis
+ * @brief Exercicios arquivos (ler numeros de char num arquvivo ler)
+
+ */
+
+
+ //Bibliotecas 
+#include <stdlib.h>
+#include <stdio.h>
+#include <stdint.h>
+#include <string.h>
+#include <math.h>
+#include <ctype.h>
+
+#define SUCESSO 0
+#define NOME (25 + 1)
+#define NUMERO_MIN_ING 20
+#define SAIDA "saida.txt"
+#define ERRO 1
+//structs
+
+typedef struct ingrediente_s {
+    char nome_ing[NOME];
+    int codigo;
+}ingredientes_t;
+
+typedef struct receita_s {
+    char nome[NOME];
+    int codigo_receita;
+    ingredientes_t ing_receita[NUMERO_MIN_ING];
+    int num_ing;
+
+} receita_t;
+
+void  cadastro(receita_t* receita) {
+    printf("\n \t \t AVISO:MAX 20 CARACTER POR NOME \n");
+
+
+    int num_ing = 0;
+    int i;
+    char lixo;
+
+    printf("\n Nome receita: ");
+    fgets(receita->nome, NOME, stdin);
+
+
+    printf("\n Codigo acesso: ");
+
+    scanf_s("%d%c", &receita->codigo_receita, &lixo);
+
+
+    printf(" numero de ingredientes (max 20): ");
+    scanf_s("%d%c", &num_ing, &lixo);
+    receita->num_ing = num_ing;
+
+    printf("\n agora, informe as seguintes coisas:");
+    for (i = 0; i < num_ing; i++) {
+        printf("\n Nome ingrediente %d: ", (i + 1));
+        fgets(receita->ing_receita[i].nome_ing, NOME, stdin);
+
+        printf("\n Codigo ing %d :", (i + 1));
+        scanf_s("%d%c", &receita->ing_receita[i].codigo, &lixo);
+    }
+
+}
+
+receita_t* novo_cadastro(receita_t* receita, int numero_atual) {
+
+
+    receita = (receita_t*)realloc(receita, sizeof(numero_atual));
+
+
+    return receita;
+
+}
+
+void cadastro_ingrediente(receita_t* receita) {
+    int num1 = 0;
+    int num_adc = 0;
+    char lixo;
+    int total_ing = 0;
+    int i;
+
+
+
+    printf("\n qauntidade de Ingredientes  que serao adicionados: ");
+    scanf_s("%d%c", &num_adc, &lixo);
+
+    total_ing = num_adc + receita->num_ing;
+    if (total_ing > NUMERO_MIN_ING) {
+        printf("\n \tAVISO: ALGUNS INGREDIENTES FICARAM DE FORA");
+    }
+
+    printf("\n agora, informe as seguintes coisas:");
+    for (i = receita->num_ing; i < total_ing; i++) {
+        printf("\n Nome ingrediente %d: ", (i + 1));
+        fgets(receita->ing_receita[i].nome_ing, NOME, stdin);
+
+        printf("\n Codigo ing %d :", (i + 1));
+        scanf_s("%d%c", &receita->ing_receita[i].codigo, &lixo);
+    }
+    printf("\n Cadastro completo \n -------------------------------");
+    receita->num_ing = total_ing;
+}
+
+void  listar_rec_ordem_cadastro(receita_t* receita, int num_ing) {
+    int i;
+
+    printf("\n Nome da receita: %s ", receita->nome);
+    printf("\n Numero codigo: %d", receita->codigo_receita);
+    printf("\n Ingredientes: ");
+    printf("\nCODIGO || NOME");
+    for (i = 0; i < receita->num_ing; i++) {
+
+        printf("\n %d | %s", receita->ing_receita[i].codigo, receita->ing_receita[i].nome_ing);
+
+    }
+
+
+
+
+}
+void listar_rec_ordem_codigo(receita_t* receita[], int num_rec) {
+    int i = 0, j = 0;
+    receita_t* temporario;
+    for (i = 0; i < (num_rec - 1); i++) {
+        for (j = 0; j < (num_rec - 1); j++) {
+            // Se estiver fora de ordem...
+            if (receita[j]->codigo_receita > receita[j + 1]->codigo_receita) {
+                temporario = receita[j];
+                receita[j] = receita[j + 1];
+                receita[j + 1] = temporario;
+            }
+        }
+    }
+    for (j = 0; j < num_rec; j++) {
+        printf("\n -----------------------------------------");
+        printf("\n Nome da receita: %s ", receita[j]->nome);
+        printf("\n -----------------------------------------");
+        printf("\n Numero codigo: %d", receita[j]->codigo_receita);
+        printf("\n -----------------------------------------");
+    }
+}
+
+void listar_rec_alfa(receita_t* receita[], int num_rec) {
+
+    int i, j;
+    char* tmp = NULL;
+
+    for (i = 0; i < (num_rec - 1); i++) {
+        for (j = 0; j < (num_rec - 1); j++) {
+            // Se estiver fora de ordem...
+            if (strcmp(receita[j]->nome, receita[j + 1]->nome) > 0) {
+                // ... troca de posicao
+                // Comando que tira o aviso
+#pragma warning(disable : 4996)
+                strcpy(tmp, receita[j]->nome);
+                strcpy(receita[j]->nome, receita[j + 1]->nome);
+                strcpy(receita[j + 1]->nome, tmp);
+
+            }
+        }
+
+    }
+    for (j = 0; j < num_rec; j++) {
+        printf("\n ----------------------------------------------------");
+        printf("\n Nome da receita: %s ", receita[j]->nome);
+        printf("\n Numero codigo: %d", receita[j]->codigo_receita);
+        printf("\nCODIGO || NOME");
+        for (i = 0; i < receita[j]->num_ing; i++) {
+
+            printf("\n %d | %s", receita[j]->ing_receita[i].codigo, receita[j]->ing_receita[i].nome_ing);
+        }
+    }
+
+
+}
+
+void listar_ing_cadastro(receita_t* receita, int num_ing) {
+    int i;
+    // basicamente so imprimi pro cara 1 receita
+    printf("\n -----------------------------------------");
+    printf("\n Nome da receita: %s ", receita->nome);
+    printf("\n -----------------------------------------");
+    printf("\n Numero codigo: %d", receita->codigo_receita);
+    printf("\n -----------------------------------------");
+    printf(" \n \t \t INGREDIENTES");
+    printf("\nCODIGO || NOME");
+    for (i = 0; i < receita->num_ing; i++) {
+
+        printf("\n %d | %s", receita->ing_receita[i].codigo, receita->ing_receita[i].nome_ing);
+
+    }
+    printf("--------------------------------------");
+}
+
+void listar_ing_codigo(receita_t* receita, int num_ing) {
+    int i = 0, j = 0, r = 0;
+    ingredientes_t temporario;
+    //ordena pelo codigo, se um codigo eh maior, ja passa os dados de um ingredinete para o
+    for (i = 0; i < (num_ing - 1); i++) {
+        for (j = 0; j < (num_ing - 1); j++) {
+            // Se estiver fora de ordem...
+            if (receita->ing_receita[j].codigo > receita->ing_receita[j + 1].codigo) {
+                temporario = receita->ing_receita[j];
+                receita->ing_receita[j] = receita->ing_receita[j + 1];
+                receita->ing_receita[j + 1] = temporario;
+            }
+        }
+    }
+    printf("\n -----------------------------------------");
+    printf("\n Nome da receita: %s ", receita->nome);
+    printf("\n -----------------------------------------");
+    printf("\n Numero codigo: %d", receita->codigo_receita);
+    printf("\n -----------------------------------------");
+    printf(" \n \t \t INGREDIENTES");
+    printf("\nCODIGO || NOME");
+    for (i = 0; i < receita->num_ing; i++) {
+
+        printf("\n %d | %s", receita->ing_receita[i].codigo, receita->ing_receita[i].nome_ing);
+
+    }
+
+}
+
+void listar_ing_alfa(receita_t* receita, int num_ing) {
+    int i, j;
+    ingredientes_t  temporario;
+    // troca apenas as palavras, o codigo é o mesmo
+    for (i = 0; i < (num_ing - 1); i++) {
+        for (j = 0; j < (num_ing - 1); j++) {
+            // Se estiver fora de ordem...
+            if (strcmp(receita->ing_receita[j].nome_ing, receita->ing_receita[j + 1].nome_ing) > 0) {
+                // ... troca de posicao
+                temporario = receita->ing_receita[j];
+                receita->ing_receita[j] = receita->ing_receita[j + 1];
+                receita->ing_receita[j + 1] = temporario;
+            }
+        }
+    }
+    printf("\n -----------------------------------------");
+    printf("\n Nome da receita: %s ", receita->nome);
+    printf("\n -----------------------------------------");
+    printf("\n Numero codigo: %d", receita->codigo_receita);
+    printf("\n -----------------------------------------");
+    printf(" \n \t \t INGREDIENTES");
+    printf("\nCODIGO || NOME");
+    for (i = 0; i < receita->num_ing; i++) {
+        
+        printf("\n %d | %s", receita->ing_receita[i].codigo, receita->ing_receita[i].nome_ing);
+
+    }
+}
+
+void impressao_completa_cadastro(receita_t* receita[], int num_rec) {
+    int i, j;
+
+    //so imprimi mesmo, já que não ordena  
+    for (j = 0; j < num_rec; j++) {
+        printf("\n -----------------------------------------");
+        printf("\n Nome da receita: %s ", receita[j]->nome);
+        printf("\n -----------------------------------------");
+        printf("\n Numero codigo: %d", receita[j]->codigo_receita);
+        printf("\n -----------------------------------------");
+        printf(" \n \t \t INGREDIENTES");
+
+        for (i = 0; i < receita[j]->num_ing; i++) {
+
+            printf("\n %d | %s", receita[j]->ing_receita[i].codigo, receita[j]->ing_receita[i].nome_ing);
+        }
+    }
+
+}
+
+void impressao_completa_alfa(receita_t* receita[], int num_rec) {
+    int i, j;
+    char * tmp;
+  
+    //ordenas as receitas
+
+     //ordena os ingredientes
+    for (i = 0; i < (receita[i]->num_ing - 1); i++) {
+        for (j = 0; j < (receita[j]->num_ing - 1); j++) {
+            // Se estiver fora de ordem...
+            if (strcmp(receita[i]->ing_receita[j].nome_ing, receita[i]->ing_receita[j + 1].nome_ing) > 0) {
+                // ... troca de posicao
+                strcpy(tmp, receita[i]->ing_receita[j].nome_ing);
+                strcpy(receita[i]->ing_receita[j].nome_ing, receita[i]->ing_receita[j + 1].nome_ing);
+                strcpy(receita[i]->ing_receita->nome_ing, tmp);
+
+            }
+        }
+    }
+    //imprimi
+    for (j = 0; j < num_rec; j++) {
+        printf("\n -----------------------------------------");
+        printf("\n Nome da receita: %s ", receita[j]->nome);
+        printf("\n -----------------------------------------");
+        printf("\n Numero codigo: %d", receita[j]->codigo_receita);
+        printf("\n -----------------------------------------");
+        printf(" \n \t \t INGREDIENTES");
+        for (i = 0; i < receita[j]->num_ing; i++) {
+
+            printf("\n %d | %s", receita[j]->ing_receita[i].codigo, receita[j]->ing_receita[i].nome_ing);
+        }
+    }
+    free(tmp);
+ 
+}
+
+void salva_arq_bin(receita_t* receita, FILE* meu_arquivo, int num_rec) {
+
+    int i = 0, j;
+
+
+    fwrite(receita->nome, NOME, 1, meu_arquivo);
+    fwrite(&receita->codigo_receita, sizeof(int), 1, meu_arquivo);
+    fwrite(&receita->num_ing, sizeof(int), 1, meu_arquivo);
+
+    for (j = 0; j < receita->num_ing; j++) {
+        fwrite(receita->ing_receita[j].nome_ing, NOME, 1, meu_arquivo);
+        fwrite(&receita->ing_receita[j].codigo, sizeof(int), 1, meu_arquivo);
+        printf("\n receita %d salva com sucesso", (i + 1));
+    }
+
+    
+
+    printf("\n Se chegou ate aqui eh pq todos os arquivo foram salvos");
+}
+
+int main(int argc, char** agrv) {
+
+    int numero_receitas = 0;
+    char lixo;
+    receita_t* receita;
+    int i;
+    int num = 0, numero_rec = 0, num_list = 0, code = 0;
+    int valor = 0;
+    FILE* meu_arquivo;
+
+
+    printf("Numero de receitas: ");
+    scanf_s("%d%c", &numero_receitas, &lixo);
+
+    receita = (receita_t*)malloc(sizeof(receita_t) * numero_receitas);
+
+    for (i = 0; i < numero_receitas; i++) {
+        cadastro(&(receita[i]));
+
+    }
+
+    do
+    {
+        printf("------------------------------------------------");
+        printf("\n cadastrar receita - 1 \n cadastrar mais ingredientes - 2 \n listar receita - 3 \n listar ingredientes - 4 \n listar todas as receitas e ingredientes - 5 \n digite : ");
+        scanf_s("%d%c", &num, &lixo);
+
+        switch (num) {
+
+        case 1: {
+            printf("\n Digite Quantas receitas vai cadastrar:");
+            scanf_s("%d%c", &numero_rec, &lixo);
+            //soma a nova quantidade a ja existentee a aloca o espaço,
+            numero_receitas += numero_rec;
+            // aqui o for vai começar a contar a partir da receita que parou, sem preencher cadastros ja exitentes
+            receita = novo_cadastro(receita, numero_receitas);
+            for (i = (numero_receitas - numero_rec); i < numero_receitas; i++) {
+                cadastro(&(receita[i]));
+            }
+            break;
+        }
+        case 2: {
+            printf("digite o codigo da receita onde o ing. vai ser colocado: ");
+            scanf_s("%d%c", &code, &lixo);
+
+            for (i = 0; i < numero_receitas; i++) {
+                if (code == receita[i].codigo_receita) {
+                    cadastro_ingrediente(&(receita[i]));
+                }
+            }
+            break;
+        }
+
+        case 3: {
+            printf("Digite o codigo receita que deseja ver: ");
+            scanf_s("%d%c", &code, &lixo);
+
+            for (i = 0; i < numero_receitas; i++) {
+
+                if (code == receita[i].codigo_receita) {
+                    printf("\n Receita encontrada, escolha como ver a lista: \n cadastro - 1 \n codigo - 2 \n alfabetico - 3 \n Parar - 4 \n digite : ");
+                    scanf_s("%d%c", &num_list, &lixo);
+                    if (num_list == 1) {
+                        listar_rec_ordem_cadastro(&(receita[i]), numero_receitas);
+
+                    }
+                    if (num_list == 2) {// nao funciona
+                        listar_rec_ordem_codigo(&(receita), numero_receitas);
+                    }
+                    if (num_list == 3) { // nao funciona
+                        listar_rec_alfa(&(receita), numero_receitas);
+
+                    }
+                    if ((num_list != 1) && (num_list != 2) && (num_list != 3)) {
+                        printf("\n valor invalido");
+                        break;
+                    }
+                }
+
+            }
+
+            break;
+        }
+
+        case 4: {
+            printf("Digite a receita que deseja ver(use o codigo): ");
+            scanf_s("%d%c", &code, &lixo);
+
+            for (i = 0; i < numero_receitas; i++) {
+                if (code == receita[i].codigo_receita) {
+                    printf("\n Receita encontrada, escolha como ver a lista: \n cadastro - 1 \n codigo - 2 \n alfabetico - 3 \n Parar - 4;");
+                    scanf_s("%d%c", &num_list, &lixo);
+                    if (num_list == 1) {
+                        listar_ing_cadastro(&(receita[i]), receita[i].num_ing);
+                    }
+                    if (num_list == 2) {
+                        listar_ing_codigo(&(receita[i]), receita[i].num_ing);
+                    }
+                    if (num_list == 3) {
+                        listar_ing_alfa(&(receita[i]), receita[i].num_ing);
+
+                    }
+                    if ((num_list != 1) && (num_list != 2) && (num_list != 3)) {
+                        printf("\n valor invalido");
+                        break;
+                    }
+                }
+            }
+            break;
+
+        }
+        case 5: {
+            printf("\n Escolha como ver a lista \n cadastro - 1 \n alfabetico - 2 \n digite aqui:");
+            scanf_s("%d%c", &num_list, &lixo);
+                if (num_list == 1) {
+                      for( i = 0; i < numero_receitas; i++){
+                        impressao_completa_cadastro(&(receita), numero_receitas);
+                      }
+                }
+                if (num_list == 2) {
+                        impressao_completa_alfa(&(receita), numero_receitas);
+                }
+                if ((num_list != 1) && (num_list != 2)) {
+                    printf("\n \t \t vc digitou algo invalido");
+                }
+            
+            break;
+        }
+
+        default: {
+            printf("\n vc nao digitou algo valido");
+        }
+
+        }
+        printf("\n Digite 0 para continuar:");
+        scanf_s("%d%c", &valor, &lixo);
+
+    } while (valor != 0);
+
+    //salvar o arquivo
+    meu_arquivo = fopen(SAIDA, "wb");
+    if (meu_arquivo == NULL) {
+        fprintf(stdout, "Arquivo <<%s>> nao funciona/existe, tente novamente \n", SAIDA);//poem uma mensagem na saida de erro
+        return ERRO;
+    }
+    else {
+        fprintf(stdout, "\ndeu certo, iremos salvar suas receitas");
+
+        for (i = 0; i < numero_receitas; i++)
+            salva_arq_bin(receita, meu_arquivo, numero_receitas);
+    }
+
+
+    free(receita);
+
+    return SUCESSO;
+}
